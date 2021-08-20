@@ -1,11 +1,11 @@
 #include "ast.hpp"
 #include <cstdint>
 #include <list>
-#include <llvm-12/llvm/ADT/APInt.h>
-#include <llvm-12/llvm/IR/Constant.h>
-#include <llvm-12/llvm/IR/InstrTypes.h>
-#include <llvm-12/llvm/Support/Alignment.h>
-#include <llvm-12/llvm/Support/raw_ostream.h>
+#include <llvm/ADT/APInt.h>
+#include <llvm/IR/Constant.h>
+#include <llvm/IR/InstrTypes.h>
+#include <llvm/Support/Alignment.h>
+#include <llvm/Support/raw_ostream.h>
 #include <llvm/IR/BasicBlock.h>
 #include <llvm/IR/DerivedTypes.h>
 #include <llvm/IR/Function.h>
