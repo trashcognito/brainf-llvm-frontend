@@ -1,2 +1,2 @@
 # brainf-llvm-frontend
-An (aggressively) optimized LLVM Frontend for Brainf.
+An (aggressively) optimizing LLVM Frontend for Brainf.
