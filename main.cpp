@@ -28,7 +28,7 @@ int main(int argc, char *kwargs[]) {
 
     auto program = std::string("++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.");
 
-    auto prog_ast = BrainfProgram(program);
+    auto prog_ast = *(single_pass_parse(program)); //BrainfProgram(program);
 
     prog_ast.debug_print();
 

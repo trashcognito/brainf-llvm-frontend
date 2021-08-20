@@ -24,6 +24,7 @@ class BrainfProgram : public BrainfItem {
     void optimize();
     void optimize_outer();
     ~BrainfProgram();
+    BrainfProgram();
 };
 class BrainfLoop : public BrainfItem {
     public:
@@ -34,6 +35,7 @@ class BrainfLoop : public BrainfItem {
     bool contains_taint() const;
     void optimize();
     ~BrainfLoop();
+    BrainfLoop();
 };
 class BrainfInstruction : public BrainfItem {
     public:
@@ -48,6 +50,7 @@ class BrainfInstruction : public BrainfItem {
     };
     InstrType type;
     BrainfInstruction(char inst);
+    BrainfInstruction(InstrType inst);
     void codegen() const;
     void debug_print() const;
     bool contains_taint() const;
@@ -60,3 +63,5 @@ extern std::unique_ptr<llvm::IRBuilder<>> builder;
 extern std::unique_ptr<llvm::Module> module;
 void init_codegen_stuff();
 void fini_codegen_stuff();
+
+BrainfProgram *single_pass_parse(std::string program);

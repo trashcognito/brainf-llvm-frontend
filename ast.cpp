@@ -17,6 +17,7 @@
 #include <llvm/IR/Type.h>
 #include <memory>
 #include <set>
+#include <stack>
 #include <vector>
 
 std::unique_ptr<llvm::LLVMContext> context;
@@ -388,4 +389,58 @@ void codegen_optimizer_resume() {
     for (auto printed : optim_printed_result) {
         builder->CreateCall(putchar_b, {builder->getInt32(printed)});
     }
+}
+BrainfProgram::BrainfProgram() {
+
+};
+BrainfLoop::BrainfLoop() {
+    this->inner = new BrainfProgram();
+}
+BrainfInstruction::BrainfInstruction(InstrType instr) {
+    this->type = instr;
+}
+BrainfProgram *single_pass_parse(std::string program) {
+    std::stack<std::vector<BrainfItem *>> progframe;
+    progframe.push(std::vector<BrainfItem *>());
+    for (auto item : program) {
+        switch (item) {
+            case '+':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::ADD));
+                break;
+            case '-':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::SUB));
+                break;
+            case '>':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::RIGHT));
+                break;
+            case '<':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::LEFT));
+                break;
+            case '[':
+                progframe.push(std::vector<BrainfItem *>());
+                break;
+            case ']':
+                {
+                auto stuff = progframe.top();
+                auto loopinstr = new BrainfLoop();
+                loopinstr->inner->inner = std::move(stuff);
+                progframe.pop();
+                progframe.top().push_back(loopinstr);
+                }
+                break;
+            case ',':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::SCAN));
+                break;
+            case '.':
+                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::PRINT));
+                break;
+            default:
+                //NO-OP
+                break;
+        }
+    }
+    auto entire_program = progframe.top();
+    auto base_program = new BrainfProgram();
+    base_program->inner = std::move(entire_program);
+    return base_program;
 }
