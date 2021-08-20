@@ -188,7 +188,7 @@ void BrainfInstruction::codegen() const {
                 );
                 auto cursorval = builder->CreateLoad(cursor_loc);
 
-                auto incr_val = builder->CreateAdd(cursorval, llvm::Constant::getIntegerValue(llvm::Type::getInt8Ty(*context), llvm::APInt(8, 1)), "inc");
+                auto incr_val = builder->CreateAdd(cursorval, builder->getInt8(1), "inc");
                 builder->CreateStore(incr_val, cursor_loc);
             }
             break;
@@ -203,21 +203,21 @@ void BrainfInstruction::codegen() const {
                 );
                 auto cursorval = builder->CreateLoad(cursor_loc);
 
-                auto incr_val = builder->CreateSub(cursorval, llvm::Constant::getIntegerValue(llvm::Type::getInt8Ty(*context), llvm::APInt(8, 1)), "dec");
+                auto incr_val = builder->CreateSub(cursorval, builder->getInt8(1), "dec");
                 builder->CreateStore(incr_val, cursor_loc);
             }
             break;
         case InstrType::LEFT:
             {
                 auto cursorval = builder->CreateLoad(cursor);
-                auto newcursorval = builder->CreateSub(cursorval, llvm::Constant::getIntegerValue(llvm::Type::getInt8Ty(*context), llvm::APInt(16, 1)), "left");
+                auto newcursorval = builder->CreateSub(cursorval, builder->getInt16(1), "left");
                 builder->CreateStore(newcursorval, cursor);
             }
             break;
         case InstrType::RIGHT:
             {
                 auto cursorval = builder->CreateLoad(cursor);
-                auto newcursorval = builder->CreateAdd(cursorval, llvm::Constant::getIntegerValue(llvm::Type::getInt8Ty(*context), llvm::APInt(16, 1)), "right");
+                auto newcursorval = builder->CreateAdd(cursorval, builder->getInt16(1), "right");
                 builder->CreateStore(newcursorval, cursor);
             }
             break;
