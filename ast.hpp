@@ -27,7 +27,7 @@ class BrainfProgram : public BrainfItem {
 };
 class BrainfLoop : public BrainfItem {
     public:
-    BrainfItem *inner;
+    BrainfProgram *inner;
     BrainfLoop(std::string thing);
     void codegen() const;
     void debug_print() const;
