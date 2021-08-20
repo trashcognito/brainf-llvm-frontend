@@ -396,26 +396,11 @@ BrainfProgram::BrainfProgram() {
 BrainfLoop::BrainfLoop() {
     this->inner = new BrainfProgram();
 }
-BrainfInstruction::BrainfInstruction(InstrType instr) {
-    this->type = instr;
-}
 BrainfProgram *single_pass_parse(std::string program) {
     std::stack<std::vector<BrainfItem *>> progframe;
     progframe.push(std::vector<BrainfItem *>());
     for (auto item : program) {
         switch (item) {
-            case '+':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::ADD));
-                break;
-            case '-':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::SUB));
-                break;
-            case '>':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::RIGHT));
-                break;
-            case '<':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::LEFT));
-                break;
             case '[':
                 progframe.push(std::vector<BrainfItem *>());
                 break;
@@ -428,14 +413,8 @@ BrainfProgram *single_pass_parse(std::string program) {
                 progframe.top().push_back(loopinstr);
                 }
                 break;
-            case ',':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::SCAN));
-                break;
-            case '.':
-                progframe.top().push_back(new BrainfInstruction(BrainfInstruction::InstrType::PRINT));
-                break;
             default:
-                //NO-OP
+                progframe.top().push_back(new BrainfInstruction(item));
                 break;
         }
     }

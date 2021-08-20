@@ -50,7 +50,6 @@ class BrainfInstruction : public BrainfItem {
     };
     InstrType type;
     BrainfInstruction(char inst);
-    BrainfInstruction(InstrType inst);
     void codegen() const;
     void debug_print() const;
     bool contains_taint() const;
