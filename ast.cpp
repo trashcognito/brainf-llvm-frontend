@@ -29,33 +29,30 @@ llvm::Function *getchar_b;
 llvm::AllocaInst *cursor;
 llvm::AllocaInst *field;
 
-static std::string extract_paren(std::string thing, int *p) {
-    std::string result;
-    int parens = 0;
-    do {
-        result += thing[*p];
-        if (thing[*p] == '[') {
-            parens++;
-        } else if (thing[*p] == ']') {
-            parens--;
-        }
-        (*p)++;
-    } while (parens);
-    (*p)--;
-    return result;
-};
 BrainfProgram::BrainfProgram(std::string thing) {
-    for (int i=0;i<thing.size();i++) {
-        if (thing[i] == '[') {
-            this->inner.push_back(new BrainfLoop(extract_paren(thing, &i)));
-        } else {
-            this->inner.push_back(new BrainfInstruction(thing[i]));
+    std::stack<std::vector<BrainfItem *>> progframe;
+    progframe.push(std::vector<BrainfItem *>());
+    for (auto item : thing) {
+        switch (item) {
+            case '[':
+                progframe.push(std::vector<BrainfItem *>());
+                break;
+            case ']':
+                {
+                auto stuff = progframe.top();
+                auto loopinstr = new BrainfLoop();
+                loopinstr->inner->inner = std::move(stuff);
+                progframe.pop();
+                progframe.top().push_back(loopinstr);
+                }
+                break;
+            default:
+                progframe.top().push_back(new BrainfInstruction(item));
+                break;
         }
     }
-}
-BrainfLoop::BrainfLoop(std::string thing) {
-    auto actual = thing.substr(1, thing.size() - 2);
-    this->inner = new BrainfProgram(actual);
+    auto entire_program = progframe.top();
+    this->inner = std::move(entire_program);
 }
 BrainfInstruction::BrainfInstruction(char inst) {
     switch(inst) {
@@ -81,7 +78,26 @@ BrainfInstruction::BrainfInstruction(char inst) {
             this->type = InstrType::NOP;
     }
 }
+BrainfItem::~BrainfItem() {
+    //do nothing
+}
+BrainfInstruction::~BrainfInstruction() {
+    //do nothing
+}
+BrainfProgram::~BrainfProgram() {
+    for (auto thing : this->inner) {
+        delete thing;
+    }
+}
+BrainfLoop::~BrainfLoop() {
+    delete this->inner;
+}
+BrainfProgram::BrainfProgram() {
 
+}
+BrainfLoop::BrainfLoop() {
+    this->inner = new BrainfProgram();
+}
 void codegen_optimizer_resume();
 
 //CODEGEN STUFF
@@ -358,20 +374,6 @@ void BrainfProgram::optimize_outer() {
         this->inner.erase(this->inner.begin());
     }
 }
-BrainfItem::~BrainfItem() {
-    //do nothing
-}
-BrainfInstruction::~BrainfInstruction() {
-    //do nothing
-}
-BrainfProgram::~BrainfProgram() {
-    for (auto thing : this->inner) {
-        delete thing;
-    }
-}
-BrainfLoop::~BrainfLoop() {
-    delete this->inner;
-}
 
 void codegen_optimizer_resume() {
     //assumes optimize_outer has been run before codegen
@@ -389,37 +391,4 @@ void codegen_optimizer_resume() {
     for (auto printed : optim_printed_result) {
         builder->CreateCall(putchar_b, {builder->getInt32(printed)});
     }
-}
-BrainfProgram::BrainfProgram() {
-
-};
-BrainfLoop::BrainfLoop() {
-    this->inner = new BrainfProgram();
-}
-BrainfProgram *single_pass_parse(std::string program) {
-    std::stack<std::vector<BrainfItem *>> progframe;
-    progframe.push(std::vector<BrainfItem *>());
-    for (auto item : program) {
-        switch (item) {
-            case '[':
-                progframe.push(std::vector<BrainfItem *>());
-                break;
-            case ']':
-                {
-                auto stuff = progframe.top();
-                auto loopinstr = new BrainfLoop();
-                loopinstr->inner->inner = std::move(stuff);
-                progframe.pop();
-                progframe.top().push_back(loopinstr);
-                }
-                break;
-            default:
-                progframe.top().push_back(new BrainfInstruction(item));
-                break;
-        }
-    }
-    auto entire_program = progframe.top();
-    auto base_program = new BrainfProgram();
-    base_program->inner = std::move(entire_program);
-    return base_program;
 }
